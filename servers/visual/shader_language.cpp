@@ -5617,6 +5617,30 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 						tk = _get_token();
 					}
 
+					if (tk.type == TK_BRACKET_OPEN) {
+						tk = _get_token();
+
+
+						if (tk.type != TK_INT_CONSTANT) {
+							_set_error("Expected single integer constant > 0");
+							return ERR_PARSE_ERROR;
+						} else if (tk.constant <= 0) {
+							_set_error("Expected single integer constant > 0");
+							return ERR_PARSE_ERROR;
+						}
+
+						int uniform_array_size = (int)tk.constant;
+
+						tk = _get_token();
+
+						if (tk.type != TK_BRACKET_CLOSE) {
+							_set_error("Expected ']'");
+							return ERR_PARSE_ERROR;
+						}
+
+						tk = _get_token();
+					}
+
 					shader->uniforms[name] = uniform2;
 
 					if (tk.type != TK_SEMICOLON) {
