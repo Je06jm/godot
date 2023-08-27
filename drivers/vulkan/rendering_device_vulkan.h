@@ -830,6 +830,18 @@ class RenderingDeviceVulkan : public RenderingDevice {
 
 	RID_Owner<ComputePipeline, true> compute_pipeline_owner;
 
+	struct RaytracingPipeline {
+		RID shader;
+		Vector<uint32_t> set_formats;
+		VkPipelineLayout pipeline_layout = VK_NULL_HANDLE; // Not owned, needed for push constants.
+		VkPipeline pipeline = VK_NULL_HANDLE;
+		uint32_t push_constant_size = 0;
+		uint32_t push_constant_stages_mask = 0;
+		uint32_t local_group_size[3] = { 0, 0, 0 };
+	};
+
+	RID_Owner<RaytracingPipeline, true> ray_tracing_pipeline_owner;
+
 	/*******************/
 	/**** DRAW LIST ****/
 	/*******************/
