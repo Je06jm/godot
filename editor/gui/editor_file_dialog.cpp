@@ -31,9 +31,13 @@
 #include "editor_file_dialog.h"
 
 #include "core/config/project_settings.h"
+#include "core/object/class_db.h"
+#include "core/os/os.h"
 #include "editor/docks/filesystem_dock.h"
+#include "editor/editor_string_names.h"
 #include "editor/file_system/dependency_editor.h"
 #include "editor/settings/editor_settings.h"
+#include "editor/themes/editor_scale.h"
 
 void EditorFileDialog::_item_menu_id_pressed(int p_option) {
 	// Use dependency dialog to delete the entry in the editor, but only for project files.
@@ -66,12 +70,12 @@ bool EditorFileDialog::_should_use_native_popup() const {
 	// Native file dialog on Android, returns a file URI instead of a path and does not support res://, user://, or options. This requires editor-side changes to handle properly, so disabling it for now.
 	return false;
 #else
-	return _can_use_native_popup() && (OS::get_singleton()->is_sandboxed() || EDITOR_GET("interface/editor/use_native_file_dialogs").operator bool());
+	return _can_use_native_popup() && (OS::get_singleton()->is_sandboxed() || EDITOR_GET("interface/editor/appearance/use_native_file_dialogs").operator bool());
 #endif
 }
 
 bool EditorFileDialog::_should_hide_file(const String &p_file) const {
-	if (Engine::get_singleton()->is_project_manager_hint()) {
+	if (get_access() != FileDialog::ACCESS_RESOURCES) {
 		return false;
 	}
 	const String full_path = dir_access->get_current_dir().path_join(p_file);
@@ -80,6 +84,10 @@ bool EditorFileDialog::_should_hide_file(const String &p_file) const {
 
 Color EditorFileDialog::_get_folder_color(const String &p_path) const {
 	return FileSystemDock::get_dir_icon_color(p_path, FileDialog::_get_folder_color(p_path));
+}
+
+Vector2i EditorFileDialog::_get_list_mode_icon_size() const {
+	return Vector2i();
 }
 
 void EditorFileDialog::_bind_methods() {
