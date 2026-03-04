@@ -251,6 +251,12 @@ RID RenderForwardClustered::RenderBufferDataForwardClustered::get_velocity_only_
 	return FramebufferCacheRD::get_singleton()->get_cache_multiview(render_buffers->get_view_count(), velocity);
 }
 
+RID RenderForwardClustered::RenderBufferDataForwardClustered::get_streaming_feedback_fb() {
+	RID streaming = render_buffers->get_texture(RB_SCOPE_BUFFERS, RB_TEX_STREAMING_FEEDBACK);
+
+	return FramebufferCacheRD::get_singleton()->get_cache_multiview(render_buffers->get_view_count(), streaming);
+}
+
 RD::DataFormat RenderForwardClustered::RenderBufferDataForwardClustered::get_specular_format() {
 	return RD::DATA_FORMAT_R16G16B16A16_SFLOAT;
 }
@@ -1802,6 +1808,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	RID color_framebuffer;
 	RID color_only_framebuffer;
 	RID depth_framebuffer;
+	RID streaming_feedback_framebuffer;
 	RendererRD::MaterialStorage::Samplers samplers;
 
 	PassMode depth_pass_mode = PASS_MODE_DEPTH;
@@ -1874,6 +1881,8 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		color_only_framebuffer = rb_data->get_color_only_fb();
 		samplers = rb->get_samplers();
 	}
+
+	streaming_feedback_framebuffer = rb_data->get_streaming_feedback_fb();
 
 	p_render_data->scene_data->emissive_exposure_normalization = -1.0;
 
@@ -2538,6 +2547,14 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 
 			sdfgi->debug_draw(p_render_data->scene_data->view_count, p_render_data->scene_data->view_projection, p_render_data->scene_data->cam_transform, size.x, size.y, rb->get_render_target(), source_texture, view_rids);
 		}
+	}
+
+	if (rb_data.is_valid()) {
+		RENDER_TIMESTAMP("Streaming Feedback");
+		RD::get_singleton()->draw_command_begin_label("Streaming Feedback");
+
+		
+		RD::get_singleton()->draw_command_end_label();
 	}
 }
 

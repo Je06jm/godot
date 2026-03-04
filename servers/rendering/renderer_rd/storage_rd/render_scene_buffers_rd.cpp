@@ -200,6 +200,9 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH_MSAA, get_depth_format(false, true, can_be_storage), get_depth_usage_bits(false, true, can_be_storage), texture_samples, Size2i(), 0, 1, true, true);
 	}
 
+	Size2i feedback_fb_size = target_size / 2;
+	create_texture(RB_SCOPE_BUFFERS, RB_TEX_STREAMING_FEEDBACK, RD::DATA_FORMAT_R16G16B16A16_UINT, get_color_usage_bits(resolve_target, false, can_be_storage), RenderingDeviceCommons::TEXTURE_SAMPLES_1, feedback_fb_size);
+
 	// VRS (note, our vrs object will only be set if VRS is supported)
 	RID vrs_texture;
 	if (vrs && vrs_mode != RSE::VIEWPORT_VRS_DISABLED) {
